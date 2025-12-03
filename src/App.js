@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import UserList from './components/UserList';
+import AddUserForm from './components/AddUserForm';
+import UserFilter from './components/UserFilter';
 
-function App() {
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [filterText, setFilterText] = useState('');
+
+  
+  useEffect(() => {
+    axios.get('https://jsonplaceholder.typicode.com/users')
+      .then((response) => setUsers(response.data))
+      .catch((error) => console.error('Error fetching users:', error));
+  }, []);
+
+  
+  const handleAddUser = useCallback((newUser) => {
+    setUsers([...users, { ...newUser, id: users.length + 1 }]);
+  }, [users]);
+
+ 
+  const handleDeleteUser = useCallback((id) => {
+    setUsers(users.filter((user) => user.id !== id));
+  }, [users]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>User Manager</h1>
+      {/* <ul>
+      {users.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul> */}
+      <AddUserForm onAdd={handleAddUser} />
+      <input
+        type="text"
+        placeholder="Filter by name"
+        value={filterText}
+        onChange={(e) => setFilterText(e.target.value)}
+      />
+      <UserFilter users={users} filterText={filterText} />
+      <UserList users={users} onDelete={handleDeleteUser} />
     </div>
   );
-}
+};
 
 export default App;
