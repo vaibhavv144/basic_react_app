@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import UserList from './components/UserList';
 import AddUserForm from './components/AddUserForm';
@@ -7,6 +7,9 @@ import UserFilter from './components/UserFilter';
 const App = () => {
   const [users, setUsers] = useState([]);
   const [filterText, setFilterText] = useState('');
+  const [count, setCount] = useState(0);
+  const [pendingChange, setPendingChange] = useState(0);
+  const timeoutRef = useRef(null);
 
   
   useEffect(() => {
@@ -20,10 +23,27 @@ const App = () => {
     setUsers([...users, { ...newUser, id: users.length + 1 }]);
   }, [users]);
 
+  
  
   const handleDeleteUser = useCallback((id) => {
     setUsers(users.filter((user) => user.id !== id));
   }, [users]);
+
+  
+
+   const increase = () => {
+    setTimeout(() => {
+      setCount(n => n + 1);
+    }, 1000);
+  };
+
+  const decrease = () => {
+    setTimeout(() => {
+      setCount(n => n- 1);
+    }, 1000);
+  };
+
+
 
   return (
     <div>
@@ -41,7 +61,24 @@ const App = () => {
         onChange={(e) => setFilterText(e.target.value)}
       />
       <UserFilter users={users} filterText={filterText} />
-      <UserList users={users} onDelete={handleDeleteUser} />
+      <UserList users={users} onDelete={handleDeleteUser} />  
+      
+
+      <div>
+
+        <h2>Count: {count}</h2>
+
+      <button onClick={increase} >
+        + Increase
+      </button>
+
+      <button onClick={decrease}>
+        - Decrease
+      </button>
+      </div>
+
+
+      
     </div>
   );
 };
